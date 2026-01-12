@@ -17,9 +17,65 @@ namespace WebLibrary.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        public async Task<ActionResult<IEnumerable<Book>>> GetBooks(
+            [FromQuery] string? author = null,
+            [FromQuery] int? year = null,
+            [FromQuery] string? genre = null,
+            [FromQuery] bool? isAvailable = null)
         {
-            return await _context.Books.ToListAsync();
+            var query = _context.Books.AsQueryable();
+
+            if (!string.IsNullOrEmpty(author))
+            {
+                query = query.Where(b => b.Author == author);
+            }
+
+            if (year.HasValue)
+            {
+                query = query.Where(b => b.Year == year.Value);
+            }
+
+            if (!string.IsNullOrEmpty(genre))
+            {
+                query = query.Where(b => b.Genre == genre);
+            }
+
+            if (isAvailable.HasValue)
+            {
+                query = query.Where(b => b.IsAvailable == isAvailable.Value);
+            }
+
+            return await query.ToListAsync();
+        }
+
+        [HttpGet("filters")]
+        public async Task<ActionResult<object>> GetFilters()
+        {
+            var authors = await _context.Books
+                .Select(b => b.Author)
+                .Distinct()
+                .OrderBy(a => a)
+                .ToListAsync();
+
+            var years = await _context.Books
+                .Select(b => b.Year)
+                .Distinct()
+                .OrderByDescending(y => y)
+                .ToListAsync();
+
+            var genres = await _context.Books
+                .Where(b => b.Genre != null)
+                .Select(b => b.Genre)
+                .Distinct()
+                .OrderBy(g => g)
+                .ToListAsync();
+
+            return new
+            {
+                authors,
+                years,
+                genres
+            };
         }
 
         [HttpGet("{id}")]

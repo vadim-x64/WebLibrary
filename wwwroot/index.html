@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Бібліотека </title>
+    <title>Library</title>
+    <link type="image/png" href="https://cdn-icons-png.flaticon.com/128/1726/1726622.png" rel="icon" />
     <link href="index.css" rel="stylesheet" />
 </head>
 <body>
@@ -18,61 +19,116 @@
             <button class="btn-create" onclick="showCreateForm()">Create</button>
             <button class="btn-read" onclick="loadBooks()">Read</button>
             <button class="btn-update" onclick="enableUpdateMode()">Update</button>
+            <button class="btn-sorting" onclick="enableSortingMode()">Sorting</button>
             <button class="btn-delete" onclick="enableDeleteMode()">Delete</button>
         </div>
 
-        <!-- Форма створення/редагування -->
         <div class="form-container" id="bookForm">
-            <h2 id="formTitle">Створити нову книгу</h2>
+            <h2 id="formTitle">Create new book</h2>
             <form id="createUpdateForm" onsubmit="submitForm(event)">
                 <input type="hidden" id="bookId">
 
                 <div class="form-group">
-                    <label for="image">Зображення (URL):</label>
-                    <input type="text" id="image" placeholder="https://example.com/image.jpg">
+                    <label for="image">Image</label>
+                    <input type="text" id="image" placeholder="https://www.photos.com/picture.jpg">
                 </div>
 
                 <div class="form-group">
-                    <label for="title">Назва книги: *</label>
-                    <input type="text" id="title" required placeholder="Введіть назву книги">
+                    <label for="title">Title *</label>
+                    <input type="text" id="title" required placeholder="The Great Gatsby">
                 </div>
 
                 <div class="form-group">
-                    <label for="author">Автор: *</label>
-                    <input type="text" id="author" required placeholder="Введіть ім'я автора">
+                    <label for="author">Author *</label>
+                    <input type="text" id="author" required placeholder="Francis Scott Key Fitzgerald">
                 </div>
 
                 <div class="form-group">
-                    <label for="year">Рік видання: *</label>
-                    <input type="number" id="year" required placeholder="2024" min="1000" max="2100">
+                    <label for="year">Year *</label>
+                    <input type="number" id="year" required placeholder="1925" min="1000" max="2026">
                 </div>
 
                 <div class="form-group">
-                    <label for="description">Опис:</label>
-                    <textarea id="description" placeholder="Короткий опис книги"></textarea>
+                    <label for="genre">Genre</label>
+                    <input type="text" id="genre" placeholder="Fiction, Mystery, Romance...">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" placeholder="The story began..."></textarea>
                 </div>
 
                 <div class="form-group">
                     <div class="checkbox-group">
                         <input type="checkbox" id="isAvailable" checked>
-                        <label for="isAvailable">Книга доступна</label>
+                        <label for="isAvailable">Available</label>
                     </div>
                 </div>
 
                 <div class="button-group">
-                    <button type="submit" class="btn-submit">Зберегти</button>
-                    <button type="button" class="btn-cancel" onclick="hideForm()">Скасувати</button>
+                    <button type="submit" class="btn-submit">Save</button>
+                    <button type="button" class="btn-cancel" onclick="hideForm()">Cancel</button>
                 </div>
             </form>
         </div>
 
-        <!-- Контейнер для відображення книг -->
+        <div class="form-container" id="sortingForm">
+            <h2>Order by</h2>
+            <form id="filterForm">
+                <div class="form-group">
+                    <label for="filterAuthor">Author</label>
+                    <select id="filterAuthor">
+                        <option value="">All authors</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="filterYear">Year</label>
+                    <select id="filterYear">
+                        <option value="">All years</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="filterGenre">Genre</label>
+                    <select id="filterGenre">
+                        <option value="">All genres</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Availability</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="availability" value="" checked>
+                            All books
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="availability" value="true">
+                            Available only
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="availability" value="false">
+                            Unavailable only
+                        </label>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn-submit" onclick="applyFilters()">Apply</button>
+                    <button type="button" class="btn-cancel" onclick="resetFilters()">Reset</button>
+                    <button type="button" class="btn-cancel" onclick="hideSortingForm()">Cancel</button>
+                </div>
+            </form>
+        </div>
+
         <div class="books-container" id="booksContainer">
-            <h2>Список книг</h2>
+            <h2>List of books</h2>
             <div class="books-grid" id="booksGrid"></div>
+            <div class="pagination" id="pagination" style="display: none;"></div>
             <div class="action-buttons" id="actionButtons" style="display: none;">
-                <button class="btn-update" onclick="updateSelectedBook()">Оновити вибрану</button>
-                <button class="btn-delete" onclick="deleteSelectedBooks()">Видалити вибрані</button>
+                <button class="btn-update" onclick="updateSelectedBook()"></button>
+                <button class="btn-delete" onclick="deleteSelectedBooks()"></button>
             </div>
         </div>
     </div>

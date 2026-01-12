@@ -1,22 +1,35 @@
 ﻿let currentMode = null;
 let selectedBooks = new Set();
 
+let currentPage = 1;
+const booksPerPage = 6;
+let allBooks = [];
+
+let currentFilters = {
+    author: '',
+    year: '',
+    genre: '',
+    isAvailable: ''
+};
+
 function showMessage(text, type = 'success') {
     const message = document.getElementById('message');
     message.textContent = text;
     message.className = `message ${type}`;
+
     setTimeout(() => {
         message.className = 'message';
-    }, 3000);
+    }, 5000);
 }
 
 function showCreateForm() {
-    document.getElementById('formTitle').textContent = 'Створити нову книгу';
     document.getElementById('bookForm').classList.add('active');
     document.getElementById('booksContainer').classList.remove('active');
+    document.getElementById('sortingForm').classList.remove('active');
     document.getElementById('createUpdateForm').reset();
     document.getElementById('bookId').value = '';
     document.getElementById('isAvailable').checked = true;
+    document.getElementById('formTitle').textContent = 'Create new book';
     currentMode = 'create';
     selectedBooks.clear();
 }
@@ -27,36 +40,95 @@ function hideForm() {
     currentMode = null;
 }
 
+function hideSortingForm() {
+    document.getElementById('sortingForm').classList.remove('active');
+    currentMode = null;
+}
+
 async function loadBooks() {
     try {
         const response = await fetch('/api/book');
-        const books = await response.json();
+        allBooks = await response.json();
 
-        // СКИДАЄМО РЕЖИМ ТА ВИБРАНІ КНИГИ
         currentMode = null;
         selectedBooks.clear();
+        currentPage = 1;
+        currentFilters = {
+            author: '',
+            year: '',
+            genre: '',
+            isAvailable: ''
+        };
 
         document.getElementById('bookForm').classList.remove('active');
+        document.getElementById('sortingForm').classList.remove('active');
         document.getElementById('booksContainer').classList.add('active');
         document.getElementById('actionButtons').style.display = 'none';
 
-        const grid = document.getElementById('booksGrid');
-        grid.innerHTML = '';
-
-        if (books.length === 0) {
-            grid.innerHTML = '<p style="text-align: center; color: #6b7280;">Книг поки немає. Створіть першу книгу!</p>';
-            return;
-        }
-
-        books.forEach(book => {
-            const card = createBookCard(book);
-            grid.appendChild(card);
-        });
-
-        showMessage(`Завантажено ${books.length} книг`);
+        displayBooks();
+        showMessage(`Uploaded ${allBooks.length} book(s)`);
     } catch (error) {
-        showMessage('Помилка завантаження книг: ' + error.message, 'error');
+        showMessage('Error uploading books: ' + error.message, 'error');
     }
+}
+
+function displayBooks() {
+    const grid = document.getElementById('booksGrid');
+    const pagination = document.getElementById('pagination');
+    grid.innerHTML = '';
+
+    if (allBooks.length === 0) {
+        grid.innerHTML = '<p class="empty-message">Seems like there are no books yet. Create one!</p>';
+        pagination.style.display = 'none';
+        return;
+    }
+
+    const totalPages = Math.ceil(allBooks.length / booksPerPage);
+    const startIndex = (currentPage - 1) * booksPerPage;
+    const endIndex = startIndex + booksPerPage;
+    const booksToShow = allBooks.slice(startIndex, endIndex);
+
+    booksToShow.forEach(book => {
+        const card = createBookCard(book);
+        grid.appendChild(card);
+    });
+
+    if (totalPages > 1) {
+        pagination.style.display = 'flex';
+        renderPagination(totalPages);
+    } else {
+        pagination.style.display = 'none';
+    }
+}
+
+function renderPagination(totalPages) {
+    const pagination = document.getElementById('pagination');
+    pagination.innerHTML = '';
+
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '<';
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.onclick = () => changePage(currentPage - 1);
+    pagination.appendChild(prevBtn);
+
+    for (let i = 1; i <= totalPages; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.textContent = i;
+        pageBtn.className = i === currentPage ? 'active' : '';
+        pageBtn.onclick = () => changePage(i);
+        pagination.appendChild(pageBtn);
+    }
+
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = '>';
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.onclick = () => changePage(currentPage + 1);
+    pagination.appendChild(nextBtn);
+}
+
+function changePage(page) {
+    currentPage = page;
+    displayBooks();
 }
 
 function createBookCard(book) {
@@ -64,24 +136,63 @@ function createBookCard(book) {
     card.className = 'book-card';
     card.dataset.bookId = book.id;
 
-    // ПОКАЗУЄМО CHECKBOX ТІЛЬКИ У ВІДПОВІДНОМУ РЕЖИМІ
     const checkbox = currentMode === 'update' || currentMode === 'delete'
         ? `<input type="checkbox" class="select-checkbox" onchange="toggleBookSelection(${book.id}, this.checked)">`
         : '';
 
+    const description = book.description || 'There is no description.';
+    const maxLength = 100;
+
+    let descriptionHTML;
+    if (description.length > maxLength) {
+        const shortDescription = description.substring(0, maxLength);
+        descriptionHTML = `
+            <div class="book-description">
+                <span class="description-short">${shortDescription}... </span>
+                <span class="description-full" style="display: none;">${description} </span>
+                <span class="toggle-text" onclick="toggleDescription(${book.id}, event)">more</span>
+            </div>
+        `;
+    } else {
+        descriptionHTML = `<div class="book-description">${description}</div>`;
+    }
+
+    const genreHTML = book.genre ? `<div class="book-genre">Genre: ${book.genre}</div>` : '';
+
     card.innerHTML = `
-                ${checkbox}
-                ${book.image ? `<img src="${book.image}" alt="${book.title}" class="book-image">` : '<div class="book-image"></div>'}
-                <div class="book-title">${book.title}</div>
-                <div class="book-author">Автор: ${book.author}</div>
-                <div class="book-year">Рік: ${book.year}</div>
-                <div class="book-description">${book.description || 'Опис відсутній'}</div>
-                <span class="book-status ${book.isAvailable ? 'status-available' : 'status-unavailable'}">
-                    ${book.isAvailable ? 'Доступна' : 'Недоступна'}
-                </span>
-            `;
+        ${checkbox}
+        ${book.image ? `<img src="${book.image}" alt="${book.title}" class="book-image">` : '<div class="book-image"></div>'}
+        <div class="book-title">${book.title}</div>
+        <hr>
+        <div class="book-author">Author: ${book.author}</div>
+        <div class="book-year">Year: ${book.year}</div>
+        ${genreHTML}
+        ${descriptionHTML}
+        <span class="book-status ${book.isAvailable ? 'status-available' : 'status-unavailable'}">
+            ${book.isAvailable ? 'Available' : 'Unavailable'}
+        </span>
+    `;
 
     return card;
+}
+
+function toggleDescription(bookId, event) {
+    event.stopPropagation();
+
+    const card = document.querySelector(`.book-card[data-book-id="${bookId}"]`);
+    const shortDesc = card.querySelector('.description-short');
+    const fullDesc = card.querySelector('.description-full');
+    const toggleText = card.querySelector('.toggle-text');
+
+    if (fullDesc.style.display === 'none') {
+        shortDesc.style.display = 'none';
+        fullDesc.style.display = 'inline';
+        toggleText.textContent = 'less';
+    } else {
+        shortDesc.style.display = 'inline';
+        fullDesc.style.display = 'none';
+        toggleText.textContent = 'more';
+    }
 }
 
 function toggleBookSelection(bookId, isChecked) {
@@ -95,7 +206,6 @@ function toggleBookSelection(bookId, isChecked) {
         card.classList.remove('selected');
     }
 
-    // ПОКАЗУЄМО КНОПКИ ТІЛЬКИ ВІДПОВІДНО ДО РЕЖИМУ
     updateActionButtons();
 }
 
@@ -109,11 +219,10 @@ function updateActionButtons() {
 
     actionButtons.style.display = 'flex';
 
-    // ПОКАЗУЄМО ТІЛЬКИ ПОТРІБНІ КНОПКИ
     if (currentMode === 'update') {
-        actionButtons.innerHTML = '<button class="btn-update" onclick="updateSelectedBook()">Оновити вибрану</button>';
+        actionButtons.innerHTML = '<button class="btn-update" onclick="updateSelectedBook()">Update selected</button>';
     } else if (currentMode === 'delete') {
-        actionButtons.innerHTML = '<button class="btn-delete" onclick="deleteSelectedBooks()">Видалити вибрані</button>';
+        actionButtons.innerHTML = '<button class="btn-delete" onclick="deleteSelectedBooks()">Delete selected</button>';
     }
 }
 
@@ -121,79 +230,160 @@ function enableUpdateMode() {
     currentMode = 'update';
     selectedBooks.clear();
     loadBooksInMode();
-    showMessage('Виберіть книгу для оновлення', 'success');
+    showMessage('Select a book to update', 'success');
 }
 
 function enableDeleteMode() {
     currentMode = 'delete';
     selectedBooks.clear();
     loadBooksInMode();
-    showMessage('Виберіть книги для видалення', 'success');
+    showMessage('Select one or more books to delete', 'success');
 }
 
-// НОВА ФУНКЦІЯ ДЛЯ ЗАВАНТАЖЕННЯ КНИГ У РЕЖИМІ UPDATE/DELETE
-async function loadBooksInMode() {
-    try {
-        const response = await fetch('/api/book');
-        const books = await response.json();
+async function enableSortingMode() {
+    currentMode = 'sorting';
+    selectedBooks.clear();
 
-        document.getElementById('bookForm').classList.remove('active');
+    document.getElementById('bookForm').classList.remove('active');
+    document.getElementById('booksContainer').classList.remove('active');
+    document.getElementById('sortingForm').classList.add('active');
+
+    await loadFilterOptions();
+    showMessage('Select filters to sort books', 'success');
+}
+
+async function loadFilterOptions() {
+    try {
+        const response = await fetch('/api/book/filters');
+        const filters = await response.json();
+
+        const authorSelect = document.getElementById('filterAuthor');
+        authorSelect.innerHTML = '<option value="">All authors</option>';
+        filters.authors.forEach(author => {
+            const option = document.createElement('option');
+            option.value = author;
+            option.textContent = author;
+            authorSelect.appendChild(option);
+        });
+
+        const yearSelect = document.getElementById('filterYear');
+        yearSelect.innerHTML = '<option value="">All years</option>';
+        filters.years.forEach(year => {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        });
+
+        const genreSelect = document.getElementById('filterGenre');
+        genreSelect.innerHTML = '<option value="">All genres</option>';
+        filters.genres.forEach(genre => {
+            const option = document.createElement('option');
+            option.value = genre;
+            option.textContent = genre;
+            genreSelect.appendChild(option);
+        });
+    } catch (error) {
+        showMessage('Error loading filters: ' + error.message, 'error');
+    }
+}
+
+async function applyFilters() {
+    currentFilters.author = document.getElementById('filterAuthor').value;
+    currentFilters.year = document.getElementById('filterYear').value;
+    currentFilters.genre = document.getElementById('filterGenre').value;
+
+    const availabilityRadio = document.querySelector('input[name="availability"]:checked');
+    currentFilters.isAvailable = availabilityRadio.value;
+
+    try {
+        let url = '/api/book?';
+        const params = [];
+
+        if (currentFilters.author) params.push(`author=${encodeURIComponent(currentFilters.author)}`);
+        if (currentFilters.year) params.push(`year=${currentFilters.year}`);
+        if (currentFilters.genre) params.push(`genre=${encodeURIComponent(currentFilters.genre)}`);
+        if (currentFilters.isAvailable) params.push(`isAvailable=${currentFilters.isAvailable}`);
+
+        url += params.join('&');
+
+        const response = await fetch(url);
+        allBooks = await response.json();
+        currentPage = 1;
+
+        document.getElementById('sortingForm').classList.remove('active');
         document.getElementById('booksContainer').classList.add('active');
         document.getElementById('actionButtons').style.display = 'none';
 
-        const grid = document.getElementById('booksGrid');
-        grid.innerHTML = '';
-
-        if (books.length === 0) {
-            grid.innerHTML = '<p style="text-align: center; color: #6b7280;">Книг поки немає. Створіть першу книгу!</p>';
-            return;
-        }
-
-        books.forEach(book => {
-            const card = createBookCard(book);
-            grid.appendChild(card);
-        });
+        displayBooks();
+        showMessage(`Found ${allBooks.length} book(s)`);
     } catch (error) {
-        showMessage('Помилка завантаження книг: ' + error.message, 'error');
+        showMessage('Error applying filters: ' + error.message, 'error');
     }
 }
 
+function resetFilters() {
+    document.getElementById('filterAuthor').value = '';
+    document.getElementById('filterYear').value = '';
+    document.getElementById('filterGenre').value = '';
+    document.querySelector('input[name="availability"][value=""]').checked = true;
+
+    currentFilters = {
+        author: '',
+        year: '',
+        genre: '',
+        isAvailable: ''
+    };
+}
+
+async function loadBooksInMode() {
+    try {
+        const response = await fetch('/api/book');
+        allBooks = await response.json();
+        currentPage = 1;
+
+        document.getElementById('bookForm').classList.remove('active');
+        document.getElementById('sortingForm').classList.remove('active');
+        document.getElementById('booksContainer').classList.add('active');
+        document.getElementById('actionButtons').style.display = 'none';
+        displayBooks();
+    } catch (error) {
+        showMessage('Error uploading books: ' + error.message, 'error');
+    }
+}
 async function updateSelectedBook() {
     if (selectedBooks.size !== 1) {
-        showMessage('Виберіть рівно одну книгу для оновлення', 'error');
+        showMessage('Select only one book to update', 'error');
         return;
     }
-
     const bookId = Array.from(selectedBooks)[0];
 
     try {
         const response = await fetch(`/api/book/${bookId}`);
         const book = await response.json();
 
-        document.getElementById('formTitle').textContent = 'Оновити книгу';
+        document.getElementById('formTitle').textContent = 'Update book';
         document.getElementById('bookId').value = book.id;
         document.getElementById('image').value = book.image || '';
         document.getElementById('title').value = book.title;
         document.getElementById('author').value = book.author;
         document.getElementById('year').value = book.year;
+        document.getElementById('genre').value = book.genre || '';
         document.getElementById('description').value = book.description || '';
         document.getElementById('isAvailable').checked = book.isAvailable;
-
         document.getElementById('booksContainer').classList.remove('active');
         document.getElementById('bookForm').classList.add('active');
         currentMode = 'update';
     } catch (error) {
-        showMessage('Помилка завантаження книги: ' + error.message, 'error');
+        showMessage('Error uploading books: ' + error.message, 'error');
     }
 }
-
 async function deleteSelectedBooks() {
     if (selectedBooks.size === 0) {
-        showMessage('Виберіть книги для видалення', 'error');
+        showMessage('Select at least one book to delete', 'error');
         return;
     }
-
-    if (!confirm(`Ви впевнені, що хочете видалити ${selectedBooks.size} книг(и)?`)) {
+    if (!confirm(`Are you really sure to delete ${selectedBooks.size} item(s)?`)) {
         return;
     }
 
@@ -207,20 +397,18 @@ async function deleteSelectedBooks() {
         });
 
         if (response.ok) {
-            showMessage(`Успішно видалено ${selectedBooks.size} книг(и)`);
+            showMessage(`Successfully deleted ${selectedBooks.size} item(s)`);
             selectedBooks.clear();
             loadBooksInMode();
         } else {
-            showMessage('Помилка видалення книг', 'error');
+            showMessage('Error deleting books', 'error');
         }
     } catch (error) {
-        showMessage('Помилка: ' + error.message, 'error');
+        showMessage('Error: ' + error.message, 'error');
     }
 }
-
 async function submitForm(event) {
     event.preventDefault();
-
     const bookId = document.getElementById('bookId').value;
     const book = {
         id: bookId ? parseInt(bookId) : 0,
@@ -228,6 +416,7 @@ async function submitForm(event) {
         title: document.getElementById('title').value,
         author: document.getElementById('author').value,
         year: parseInt(document.getElementById('year').value),
+        genre: document.getElementById('genre').value,
         description: document.getElementById('description').value,
         isAvailable: document.getElementById('isAvailable').checked
     };
@@ -235,7 +424,6 @@ async function submitForm(event) {
     try {
         let response;
         if (bookId) {
-            // Update
             response = await fetch(`/api/book/${bookId}`, {
                 method: 'PUT',
                 headers: {
@@ -244,7 +432,6 @@ async function submitForm(event) {
                 body: JSON.stringify(book)
             });
         } else {
-            // Create
             response = await fetch('/api/book', {
                 method: 'POST',
                 headers: {
@@ -255,12 +442,12 @@ async function submitForm(event) {
         }
 
         if (response.ok) {
-            showMessage(bookId ? 'Книга успішно оновлена!' : 'Книга успішно створена!');
+            showMessage(bookId ? 'The book has been updated successfully' : 'The book has been created successfully');
             hideForm();
         } else {
-            showMessage('Помилка збереження книги', 'error');
+            showMessage('Error saving book', 'error');
         }
     } catch (error) {
-        showMessage('Помилка: ' + error.message, 'error');
+        showMessage('Error: ' + error.message, 'error');
     }
 }

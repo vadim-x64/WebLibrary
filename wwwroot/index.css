@@ -40,57 +40,76 @@ button {
     font-weight: bold;
 }
 
-.btn-create, .btn-read, .btn-update, .btn-delete, .btn-submit, .btn-cancel {
+.btn-submit, .btn-cancel {
     color: #FFFFFF;
 }
 
 .btn-create {
-    background: #00F05F;
+    flex: 0 0 calc(30% - 5px);
+    background: #BDEECD;
+    color: #006E31
 }
 
-.btn-create:hover {
-    background: #24C221;
-}
+    .btn-create:hover {
+        background: #A5D1B4;
+    }
 
 .btn-read {
-    background: #00A4F9;
+    flex: 0 0 calc(70% - 5px);
+    background: #C1E1F3;
+    color: #009DFF;
 }
 
-.btn-read:hover {
-    background: #007CBA;
-}
+    .btn-read:hover {
+        background: #A5C1D1;
+    }
 
 .btn-update {
-    background: #F4A300;
+    flex: 0 0 calc(65% - 5px);
+    background: #FFE1BB;
+    color: #A15902;
 }
 
-.btn-update:hover {
-    background: #C98600;
+    .btn-update:hover {
+        background: #D9BF9E;
+    }
+
+.btn-sorting {
+    flex: 0 0 calc(35% - 5px);
+    background: #E8D5FF;
+    color: #6B21A8;
 }
+
+    .btn-sorting:hover {
+        background: #D4B8E8;
+    }
 
 .btn-delete {
-    width: 100%;
-    background: #FA2700;
+    flex: 0 0 100%;
+    background: #FAB8BB;
+    color: #690A00;
 }
 
-.btn-delete:hover {
-    background: #BD1C00;
-}
+    .btn-delete:hover {
+        background: #D19B9D;
+    }
 
 .btn-submit {
-    background: #005CEF;
+    background: #006EF5;
+    color: #000675;
 }
 
-.btn-submit:hover {
-    background: #0040A6;
-}
+    .btn-submit:hover {
+        background: #005ED1;
+    }
 
 .btn-cancel {
-    background: #666666;
+    background: #EEEEEE;
+    color: #666666;
 }
 
 .btn-cancel:hover {
-    background: #333333;
+    background: #CCCCCC;
 }
 
 .form-container {
@@ -125,7 +144,8 @@ label {
 
 input[type="text"],
 input[type="number"],
-textarea {
+textarea,
+select {
     width: 100%;
     padding: 15px;
     border: 3px solid #DDDDDD;
@@ -134,10 +154,16 @@ textarea {
     transition: border-color 0.5s ease;
 }
 
-input:focus,
-textarea:focus {
-    outline: none;
-    border-color: #AAAAAA;
+    input:focus,
+    textarea:focus,
+    select:focus {
+        outline: none;
+        border-color: #AAAAAA;
+    }
+
+select {
+    cursor: pointer;
+    background-color: #FFFFFF;
 }
 
 textarea {
@@ -158,6 +184,28 @@ textarea {
 }
 
 input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+input[type="radio"] {
     width: 20px;
     height: 20px;
     cursor: pointer;
@@ -200,6 +248,13 @@ input[type="checkbox"] {
     margin-top: 15px;
 }
 
+hr {
+    height: 3px;
+    border: none;
+    background: #DDDDDD;
+    margin: 30px auto;
+}
+
 .book-author {
     font-size: 18px;
     color: #333333;
@@ -212,11 +267,23 @@ input[type="checkbox"] {
     margin: 5px auto;
 }
 
+.book-genre {
+    font-size: 18px;
+    color: #6B21A8;
+    margin: 5px auto;
+    font-style: italic;
+}
+
 .book-description {
     font-size: 16px;
     color: #333333;
     margin: 5px auto;
     text-align: justify;
+}
+
+.toggle-text {
+    color: #666666;
+    cursor: pointer; 
 }
 
 .book-status {
@@ -269,4 +336,41 @@ input[type="checkbox"] {
     color: #690A00;
     display: block;
     font-size: 18px;
+}
+
+.empty-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #666666;
+    font-size: 24px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.pagination button {
+    padding: 10px 20px;
+    font-size: 18px;
+    border: 3px solid #DDDDDD;
+    border-radius: 10px;
+    background: #FFFFFF;
+    color: #333333;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+ 
+.pagination button:disabled {
+    opacity: 0.5;
+            
+}
+
+.pagination button.active {
+    background: #C1E1F3;
+    color: #FFFFFF;
+    border-color: #009DFF;
 }
