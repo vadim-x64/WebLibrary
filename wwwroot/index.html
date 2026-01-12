@@ -1,94 +1,81 @@
 ﻿<!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Library</title>
     <link type="image/png" href="https://cdn-icons-png.flaticon.com/128/1726/1726622.png" rel="icon" />
     <link href="index.css" rel="stylesheet" />
+    <link href="app.css" rel="stylesheet" />
 </head>
 <body>
     <header>
         <h1>Library System Management</h1>
     </header>
-
     <div class="container">
         <div class="message" id="message"></div>
-
         <div class="button-group">
-            <button class="btn-create" onclick="showCreateForm()">Create</button>
-            <button class="btn-read" onclick="loadBooks()">Read</button>
-            <button class="btn-update" onclick="enableUpdateMode()">Update</button>
-            <button class="btn-sorting" onclick="enableSortingMode()">Sorting</button>
-            <button class="btn-delete" onclick="enableDeleteMode()">Delete</button>
+            <button class="btn-create" onclick="showCreateForm()">✚ Create</button>
+            <button class="btn-read" onclick="loadBooks()">⤓ Read</button>
+            <button class="btn-update" onclick="enableUpdateMode()">↻ Update</button>
+            <button class="btn-sorting" onclick="enableSortingMode()">⇅ Sorting</button>
+            <button class="btn-delete" onclick="enableDeleteMode()">✖ Delete</button>
         </div>
-
         <div class="form-container" id="bookForm">
             <h2 id="formTitle">Create new book</h2>
             <form id="createUpdateForm" onsubmit="submitForm(event)">
                 <input type="hidden" id="bookId">
-
                 <div class="form-group">
                     <label for="image">Image</label>
                     <input type="text" id="image" placeholder="https://www.photos.com/picture.jpg">
                 </div>
-
                 <div class="form-group">
                     <label for="title">Title *</label>
                     <input type="text" id="title" required placeholder="The Great Gatsby">
                 </div>
-
                 <div class="form-group">
                     <label for="author">Author *</label>
-                    <input type="text" id="author" required placeholder="Francis Scott Key Fitzgerald">
+                    <input type="text" id="author" required placeholder="Francis Scott Fitzgerald">
                 </div>
-
                 <div class="form-group">
                     <label for="year">Year *</label>
-                    <input type="number" id="year" required placeholder="1925" min="1000" max="2026">
+                    <input type="number" id="year" required placeholder="1925">
                 </div>
-
                 <div class="form-group">
                     <label for="genre">Genre *</label>
                     <select id="genre" required>
                         <option value="">Select genre</option>
-                        <option value="1">Fiction</option>
-                        <option value="2">Mystery</option>
-                        <option value="3">Romance</option>
-                        <option value="4">ScienceFiction</option>
-                        <option value="5">Biography</option>
+                        <option value="Fiction">Fiction</option>
+                        <option value="Mystery">Mystery</option>
+                        <option value="Romance">Romance</option>
+                        <option value="ScienceFiction">Science Fiction</option>
+                        <option value="Biography">Biography</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label for="language">Language *</label>
                     <input type="text" id="language" required placeholder="English">
                 </div>
-
                 <div class="form-group">
                     <label for="pages">Pages *</label>
                     <input type="number" id="pages" required placeholder="200" min="1">
                 </div>
-
                 <div class="form-group">
                     <label for="description">Description</label>
                     <textarea id="description" placeholder="The story began..."></textarea>
                 </div>
-
                 <div class="form-group">
                     <div class="checkbox-group">
                         <input type="checkbox" id="isAvailable" checked>
                         <label for="isAvailable">Available</label>
                     </div>
                 </div>
-
                 <div class="button-group">
                     <button type="submit" class="btn-submit">Save</button>
                     <button type="button" class="btn-cancel" onclick="hideForm()">Cancel</button>
                 </div>
             </form>
         </div>
-
         <div class="form-container" id="sortingForm">
             <h2>Order by</h2>
             <form id="filterForm">
@@ -98,37 +85,32 @@
                         <option value="">All authors</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label for="filterYear">Year</label>
                     <select id="filterYear">
                         <option value="">All years</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label for="filterGenre">Genre</label>
                     <select id="filterGenre">
                         <option value="">All genres</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label for="filterLanguage">Language</label>
                     <select id="filterLanguage">
                         <option value="">All languages</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label for="filterPagesFrom">Pages (from - to)</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
+                    <div class="pages-range-container">
                         <input type="number" id="filterPagesFrom" placeholder="From" min="1">
                         <span>-</span>
                         <input type="number" id="filterPagesTo" placeholder="To" min="1">
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label>Availability</label>
                     <div class="radio-group">
@@ -146,7 +128,6 @@
                         </label>
                     </div>
                 </div>
-
                 <div class="button-group">
                     <button type="button" class="btn-submit" onclick="applyFilters()">Apply</button>
                     <button type="button" class="btn-cancel" onclick="resetFilters()">Reset</button>
@@ -154,20 +135,16 @@
                 </div>
             </form>
         </div>
-
         <div class="books-container" id="booksContainer">
             <h2>List of books</h2>
             <div class="books-grid" id="booksGrid"></div>
-            <div class="pagination" id="pagination" style="display: none;"></div>
-            <div class="action-buttons" id="actionButtons" style="display: none;">
+            <div class="pagination" id="pagination"></div>
+            <div class="action-buttons" id="actionButtons">
                 <button class="btn-update" onclick="updateSelectedBook()"></button>
                 <button class="btn-delete" onclick="deleteSelectedBooks()"></button>
             </div>
         </div>
     </div>
-
-    <script src="index.js">
-        
-    </script>
+    <script src="index.js"></script>
 </body>
 </html>

@@ -168,14 +168,14 @@ function createBookCard(book) {
     }
 
     const genreNames = {
-        1: 'Fiction',
-        2: 'Mystery',
-        3: 'Romance',
-        4: 'ScienceFiction',
-        5: 'Biography'
+        'Fiction': 'Fiction',
+        'Mystery': 'Mystery',
+        'Romance': 'Romance',
+        'ScienceFiction': 'Science Fiction',
+        'Biography': 'Biography'
     };
 
-    const genreHTML = `<span class="book-genre-badge">${genreNames[book.genre]}</span>`;
+    const genreHTML = `<span class="book-genre-badge">${genreNames[book.genre] || book.genre}</span>`;
 
     card.innerHTML = `
         ${checkbox}
@@ -475,13 +475,16 @@ async function deleteSelectedBooks() {
 async function submitForm(event) {
     event.preventDefault();
     const bookId = document.getElementById('bookId').value;
+    const genreValue = document.getElementById('genre').value;
+
+
     const book = {
         id: bookId ? parseInt(bookId) : 0,
         image: document.getElementById('image').value,
         title: document.getElementById('title').value,
         author: document.getElementById('author').value,
         year: parseInt(document.getElementById('year').value),
-        genre: parseInt(document.getElementById('genre').value),
+        genre: genreValue,
         language: document.getElementById('language').value,
         pages: parseInt(document.getElementById('pages').value),
         description: document.getElementById('description').value,

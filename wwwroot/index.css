@@ -12,17 +12,19 @@ header {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #333333;
+    background: #333333;
     height: 150px;
 }
 
 h1 {
+    font-size: 60px;
+    font-weight: normal;
     text-align: center;
     color: #FFFFFF;
 }
 
 .container {
-    max-width: 720px;
+    max-width: 1200px;
     margin: 30px auto;
 }
 
@@ -37,26 +39,22 @@ button {
     flex: 1;
     padding: 20px 60px;
     font-size: 28px;
+    font-weight: bold;
     border: none;
     border-radius: 200px;
     cursor: pointer;
-    transition: all 0.3s;
-    font-weight: bold;
-}
-
-.btn-submit, .btn-cancel {
-    color: #FFFFFF;
+    transition: all 0.5s ease;
 }
 
 .btn-create {
     flex: 0 0 calc(30% - 5px);
     background: #BDEECD;
-    color: #006E31
+    color: #006E31;
 }
 
-    .btn-create:hover {
-        background: #A5D1B4;
-    }
+.btn-create:hover {
+    background: #A5D1B4;
+}
 
 .btn-read {
     flex: 0 0 calc(70% - 5px);
@@ -64,9 +62,9 @@ button {
     color: #009DFF;
 }
 
-    .btn-read:hover {
-        background: #A5C1D1;
-    }
+.btn-read:hover {
+    background: #A5C1D1;
+}
 
 .btn-update {
     flex: 0 0 calc(65% - 5px);
@@ -74,9 +72,9 @@ button {
     color: #A15902;
 }
 
-    .btn-update:hover {
-        background: #D9BF9E;
-    }
+.btn-update:hover {
+    background: #D9BF9E;
+}
 
 .btn-sorting {
     flex: 0 0 calc(35% - 5px);
@@ -84,9 +82,9 @@ button {
     color: #6B21A8;
 }
 
-    .btn-sorting:hover {
-        background: #D4B8E8;
-    }
+.btn-sorting:hover {
+    background: #D4B8E8;
+}
 
 .btn-delete {
     flex: 0 0 100%;
@@ -94,18 +92,18 @@ button {
     color: #690A00;
 }
 
-    .btn-delete:hover {
-        background: #D19B9D;
-    }
+.btn-delete:hover {
+    background: #D19B9D;
+}
 
 .btn-submit {
     background: #006EF5;
     color: #000675;
 }
 
-    .btn-submit:hover {
-        background: #005ED1;
-    }
+.btn-submit:hover {
+    background: #0055BC;
+}
 
 .btn-cancel {
     background: #EEEEEE;
@@ -124,7 +122,8 @@ button {
     margin-top: 30px;
 }
 
-.form-container.active {
+.form-container.active,
+.books-container.active {
     display: block;
 }
 
@@ -133,16 +132,18 @@ button {
 }
 
 h2 {
-    color: #000000;
+    font-size: 28px;
+    font-weight: normal;
+    color: #333333;
     text-align: center;
     margin-bottom: 30px;
 }
 
 label {
     display: block;
-    font-weight: bold;
-    color: #666666;
-    font-size: 18px;
+    font-size: 24px;
+    font-weight: normal;
+    color: #999999;
     margin-bottom: 5px;
 }
 
@@ -153,27 +154,26 @@ select {
     width: 100%;
     padding: 15px;
     border: 3px solid #DDDDDD;
-    border-radius: 200px;
+    border-radius: 15px;
     font-size: 18px;
+    font-weight: normal;
     transition: border-color 0.5s ease;
 }
 
-    input:focus,
-    textarea:focus,
-    select:focus {
-        outline: none;
-        border-color: #AAAAAA;
-    }
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #666666;
+}
 
 select {
     cursor: pointer;
-    background-color: #FFFFFF;
 }
 
 textarea {
     resize: vertical;
     min-height: 100px;
-    border-radius: 15px;
 }
 
 .checkbox-group {
@@ -184,10 +184,11 @@ textarea {
 
 .checkbox-group label {
     display: inline;
-    margin-bottom: 0;
+    margin: 0;
 }
 
-input[type="checkbox"] {
+input[type="checkbox"],
+input[type="radio"] {
     width: 20px;
     height: 20px;
     cursor: pointer;
@@ -198,31 +199,21 @@ input[type="checkbox"] {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-top: 10px;
+    margin-top: 15px;
 }
 
 .radio-label {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 5px;
     font-weight: normal;
     cursor: pointer;
-}
-
-input[type="radio"] {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-    flex-shrink: 0;
+    color: #666666;
 }
 
 .books-container {
     display: none;
     margin-top: 30px;
-}
-
-.books-container.active {
-    display: block;
 }
 
 .books-grid {
@@ -248,7 +239,7 @@ input[type="radio"] {
 .book-title {
     font-size: 24px;
     font-weight: bold;
-    color: #000000;
+    color: #333333;
     margin-top: 15px;
 }
 
@@ -259,31 +250,29 @@ hr {
     margin: 30px auto;
 }
 
-.book-author {
+.book-author,
+.book-year,
+.book-description,
+.book-info {
     font-size: 18px;
+    font-weight: normal;
     color: #333333;
     margin: 5px auto;
 }
 
-.book-year {
-    font-size: 18px;
-    color: #999999;
-    margin: 5px auto;
-}
-
-.book-description {
+.book-description, .toggle-text {
     font-size: 16px;
-    color: #333333;
-    margin: 5px auto;
+    color: #666666;
     text-align: justify;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .toggle-text {
-    color: #666666;
     cursor: pointer; 
 }
 
-.book-status {
+.book-status, .book-genre-badge {
     position: absolute;
     top: 15px;
     left: 15px;
@@ -294,13 +283,7 @@ hr {
 }
 
 .book-genre-badge {
-    position: absolute;
-    top: 50px;
-    left: 15px;
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-size: 14px;
-    font-weight: bold;
+    top: 45px;
     background: #FFD700;
     color: #8B6914;
 }
@@ -336,12 +319,13 @@ hr {
     top: 30px;
     right: -400px;
     font-size: 18px;
+    font-weight: normal;
     min-width: 100px;
     max-width: 500px;
     transition: right 0.5s ease;
     z-index: 9999;
     padding: 15px;
-    border-radius: 5px;
+    border-radius: 15px;
 }
 
 .message.show {
@@ -361,7 +345,7 @@ hr {
 .empty-message {
     grid-column: 1 / -1;
     text-align: center;
-    color: #666666;
+    color: #999999;
     font-size: 24px;
 }
 
@@ -374,23 +358,23 @@ hr {
 }
 
 .pagination button {
-    padding: 10px 20px;
+    padding: 15px 30px;
     font-size: 18px;
+    font-weight: bold;
     border: 3px solid #DDDDDD;
-    border-radius: 10px;
+    border-radius: 15px;
     background: #FFFFFF;
     color: #333333;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.5s ease;
 }
  
 .pagination button:disabled {
     opacity: 0.5;
-            
 }
 
 .pagination button.active {
     background: #C1E1F3;
-    color: #FFFFFF;
+    color: #009DFF;
     border-color: #009DFF;
 }

@@ -89,7 +89,7 @@ namespace WebLibrary.Controllers
 
             var genres = Enum.GetValues(typeof(Genre))
                 .Cast<Genre>()
-                .Select(g => new { value = (int)g, name = g.ToString() })
+                .Select(g => new { value = g.ToString(), name = g.ToString() })
                 .ToList();
 
             return new

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using WebLibrary.Data;
 
 namespace WebLibrary
@@ -9,7 +10,12 @@ namespace WebLibrary
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
+
             builder.Services.AddOpenApi();
 
             builder.Services.AddDbContext<WebLibraryDb>(options =>
