@@ -1,0 +1,272 @@
+﻿* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #333333;
+    height: 150px;
+}
+
+h1 {
+    text-align: center;
+    color: #FFFFFF;
+}
+
+.container {
+    max-width: 720px;
+    margin: 30px auto;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+button {
+    flex: 1;
+    padding: 20px 60px;
+    font-size: 28px;
+    border: none;
+    border-radius: 200px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: bold;
+}
+
+.btn-create, .btn-read, .btn-update, .btn-delete, .btn-submit, .btn-cancel {
+    color: #FFFFFF;
+}
+
+.btn-create {
+    background: #00F05F;
+}
+
+.btn-create:hover {
+    background: #24C221;
+}
+
+.btn-read {
+    background: #00A4F9;
+}
+
+.btn-read:hover {
+    background: #007CBA;
+}
+
+.btn-update {
+    background: #F4A300;
+}
+
+.btn-update:hover {
+    background: #C98600;
+}
+
+.btn-delete {
+    width: 100%;
+    background: #FA2700;
+}
+
+.btn-delete:hover {
+    background: #BD1C00;
+}
+
+.btn-submit {
+    background: #005CEF;
+}
+
+.btn-submit:hover {
+    background: #0040A6;
+}
+
+.btn-cancel {
+    background: #666666;
+}
+
+.btn-cancel:hover {
+    background: #333333;
+}
+
+.form-container {
+    display: none;
+    padding: 30px;
+    border: 3px solid #DDDDDD;
+    border-radius: 15px;
+    margin-top: 30px;
+}
+
+.form-container.active {
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+h2 {
+    color: #000000;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    color: #666666;
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="number"],
+textarea {
+    width: 100%;
+    padding: 15px;
+    border: 3px solid #DDDDDD;
+    border-radius: 200px;
+    font-size: 18px;
+    transition: border-color 0.5s ease;
+}
+
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: #AAAAAA;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+    border-radius: 15px;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.checkbox-group label {
+    display: inline;
+    margin-bottom: 0;
+}
+
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.books-container {
+    display: none;
+    margin-top: 30px;
+}
+
+.books-container.active {
+    display: block;
+}
+
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.book-card {
+    border: 3px solid #DDDDDD;
+    border-radius: 15px;
+    padding: 15px;
+    position: relative;
+}
+
+.book-image {
+    width: 100%;
+    height: 300px; 
+    object-fit: contain; 
+}
+
+.book-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000000;
+    margin-top: 15px;
+}
+
+.book-author {
+    font-size: 18px;
+    color: #333333;
+    margin: 5px auto;
+}
+
+.book-year {
+    font-size: 18px;
+    color: #999999;
+    margin: 5px auto;
+}
+
+.book-description {
+    font-size: 16px;
+    color: #333333;
+    margin: 5px auto;
+    text-align: justify;
+}
+
+.book-status {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.status-available {
+    background: #00FA71;
+    color: #006E31;
+}
+
+.status-unavailable {
+    background: #F51A00;
+    color: #690A00;
+}
+
+.select-checkbox {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+
+.action-buttons {
+    margin-top: 30px;
+    display: flex;
+    gap: 10px;
+}
+
+.message {
+    padding: 15px;
+    border-radius: 5px;
+    display: none;
+}
+
+.message.success {
+    background: #BDEECD;
+    color: #006E31;
+    display: block;
+    font-size: 18px;
+}
+
+.message.error {
+    background: #FAB8BB;
+    color: #690A00;
+    display: block;
+    font-size: 18px;
+}
