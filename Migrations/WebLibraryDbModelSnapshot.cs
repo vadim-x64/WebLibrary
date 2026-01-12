@@ -36,8 +36,8 @@ namespace WebLibrary.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<string>("Genre")
-                        .HasColumnType("text");
+                    b.Property<int>("Genre")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Image")
                         .HasColumnType("text");

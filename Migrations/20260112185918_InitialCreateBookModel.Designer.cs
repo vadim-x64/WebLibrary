@@ -11,8 +11,8 @@ using WebLibrary.Data;
 namespace WebLibrary.Migrations
 {
     [DbContext(typeof(WebLibraryDb))]
-    [Migration("20260112115512_ChangedModelBook")]
-    partial class ChangedModelBook
+    [Migration("20260112185918_InitialCreateBookModel")]
+    partial class InitialCreateBookModel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,6 +38,9 @@ namespace WebLibrary.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
+
+                    b.Property<int>("Genre")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Image")
                         .HasColumnType("text");

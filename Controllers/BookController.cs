@@ -20,7 +20,7 @@ namespace WebLibrary.Controllers
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks(
             [FromQuery] string? author = null,
             [FromQuery] int? year = null,
-            [FromQuery] string? genre = null,
+            [FromQuery] Genre? genre = null,
             [FromQuery] bool? isAvailable = null)
         {
             var query = _context.Books.AsQueryable();
@@ -35,9 +35,9 @@ namespace WebLibrary.Controllers
                 query = query.Where(b => b.Year == year.Value);
             }
 
-            if (!string.IsNullOrEmpty(genre))
+            if (genre.HasValue)
             {
-                query = query.Where(b => b.Genre == genre);
+                query = query.Where(b => b.Genre == genre.Value);
             }
 
             if (isAvailable.HasValue)
@@ -63,12 +63,10 @@ namespace WebLibrary.Controllers
                 .OrderByDescending(y => y)
                 .ToListAsync();
 
-            var genres = await _context.Books
-                .Where(b => b.Genre != null)
-                .Select(b => b.Genre)
-                .Distinct()
-                .OrderBy(g => g)
-                .ToListAsync();
+            var genres = Enum.GetValues(typeof(Genre))
+                .Cast<Genre>()
+                .Select(g => new { value = (int)g, name = g.ToString() })
+                .ToList();
 
             return new
             {

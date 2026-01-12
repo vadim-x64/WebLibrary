@@ -157,7 +157,15 @@ function createBookCard(book) {
         descriptionHTML = `<div class="book-description">${description}</div>`;
     }
 
-    const genreHTML = book.genre ? `<div class="book-genre">Genre: ${book.genre}</div>` : '';
+    const genreNames = {
+        1: 'Fiction',
+        2: 'Mystery',
+        3: 'Romance',
+        4: 'ScienceFiction',
+        5: 'Biography'
+    };
+
+    const genreHTML = `<span class="book-genre-badge">${genreNames[book.genre]}</span>`;
 
     card.innerHTML = `
         ${checkbox}
@@ -166,11 +174,11 @@ function createBookCard(book) {
         <hr>
         <div class="book-author">Author: ${book.author}</div>
         <div class="book-year">Year: ${book.year}</div>
-        ${genreHTML}
         ${descriptionHTML}
         <span class="book-status ${book.isAvailable ? 'status-available' : 'status-unavailable'}">
             ${book.isAvailable ? 'Available' : 'Unavailable'}
         </span>
+        ${genreHTML}
     `;
 
     return card;
@@ -241,15 +249,29 @@ function enableDeleteMode() {
 }
 
 async function enableSortingMode() {
-    currentMode = 'sorting';
-    selectedBooks.clear();
 
-    document.getElementById('bookForm').classList.remove('active');
-    document.getElementById('booksContainer').classList.remove('active');
-    document.getElementById('sortingForm').classList.add('active');
+    try {
+        const response = await fetch('/api/book');
+        allBooks = await response.json();
 
-    await loadFilterOptions();
-    showMessage('Select filters to sort books', 'success');
+        if (allBooks.length === 0) {
+            showMessage('Nothing to sort', 'success');
+            return;
+        }
+
+
+        currentMode = 'sorting';
+        selectedBooks.clear();
+
+        document.getElementById('bookForm').classList.remove('active');
+        document.getElementById('booksContainer').classList.remove('active');
+        document.getElementById('sortingForm').classList.add('active');
+
+        await loadFilterOptions();
+        showMessage('Select filters to sort books', 'success');
+    } catch (error) {
+        showMessage('Error loading books: ' + error.message, 'error');
+    }
 }
 
 async function loadFilterOptions() {
@@ -279,15 +301,14 @@ async function loadFilterOptions() {
         genreSelect.innerHTML = '<option value="">All genres</option>';
         filters.genres.forEach(genre => {
             const option = document.createElement('option');
-            option.value = genre;
-            option.textContent = genre;
+            option.value = genre.value;
+            option.textContent = genre.name;
             genreSelect.appendChild(option);
         });
     } catch (error) {
         showMessage('Error loading filters: ' + error.message, 'error');
     }
 }
-
 async function applyFilters() {
     currentFilters.author = document.getElementById('filterAuthor').value;
     currentFilters.year = document.getElementById('filterYear').value;
@@ -368,7 +389,7 @@ async function updateSelectedBook() {
         document.getElementById('title').value = book.title;
         document.getElementById('author').value = book.author;
         document.getElementById('year').value = book.year;
-        document.getElementById('genre').value = book.genre || '';
+        document.getElementById('genre').value = book.genre;
         document.getElementById('description').value = book.description || '';
         document.getElementById('isAvailable').checked = book.isAvailable;
         document.getElementById('booksContainer').classList.remove('active');
@@ -416,7 +437,7 @@ async function submitForm(event) {
         title: document.getElementById('title').value,
         author: document.getElementById('author').value,
         year: parseInt(document.getElementById('year').value),
-        genre: document.getElementById('genre').value,
+        genre: parseInt(document.getElementById('genre').value),
         description: document.getElementById('description').value,
         isAvailable: document.getElementById('isAvailable').checked
     };
