@@ -9,6 +9,9 @@ let currentFilters = {
     author: '',
     year: '',
     genre: '',
+    language: '',
+    pagesFrom: '',
+    pagesTo: '',
     isAvailable: ''
 };
 
@@ -18,7 +21,14 @@ function showMessage(text, type = 'success') {
     message.className = `message ${type}`;
 
     setTimeout(() => {
-        message.className = 'message';
+        message.classList.add('show');
+    }, 10);
+
+    setTimeout(() => {
+        message.classList.remove('show');
+        setTimeout(() => {
+            message.className = 'message';
+        }, 500);
     }, 5000);
 }
 
@@ -174,6 +184,8 @@ function createBookCard(book) {
         <hr>
         <div class="book-author">Author: ${book.author}</div>
         <div class="book-year">Year: ${book.year}</div>
+        <div class="book-info">Language: ${book.language || 'N/A'}</div>
+        <div class="book-info">Pages: ${book.pages || 'N/A'}</div>
         ${descriptionHTML}
         <span class="book-status ${book.isAvailable ? 'status-available' : 'status-unavailable'}">
             ${book.isAvailable ? 'Available' : 'Unavailable'}
@@ -305,6 +317,24 @@ async function loadFilterOptions() {
             option.textContent = genre.name;
             genreSelect.appendChild(option);
         });
+
+        const languageSelect = document.getElementById('filterLanguage');
+        languageSelect.innerHTML = '<option value="">All languages</option>';
+        filters.languages.forEach(language => {
+            const option = document.createElement('option');
+            option.value = language;
+            option.textContent = language;
+            languageSelect.appendChild(option);
+        });
+
+        const pagesSelect = document.getElementById('filterPages');
+        pagesSelect.innerHTML = '<option value="">All pages</option>';
+        filters.pages.forEach(page => {
+            const option = document.createElement('option');
+            option.value = page;
+            option.textContent = page;
+            pagesSelect.appendChild(option);
+        });
     } catch (error) {
         showMessage('Error loading filters: ' + error.message, 'error');
     }
@@ -313,6 +343,9 @@ async function applyFilters() {
     currentFilters.author = document.getElementById('filterAuthor').value;
     currentFilters.year = document.getElementById('filterYear').value;
     currentFilters.genre = document.getElementById('filterGenre').value;
+    currentFilters.language = document.getElementById('filterLanguage').value;
+    currentFilters.pagesFrom = document.getElementById('filterPagesFrom').value;
+    currentFilters.pagesTo = document.getElementById('filterPagesTo').value;
 
     const availabilityRadio = document.querySelector('input[name="availability"]:checked');
     currentFilters.isAvailable = availabilityRadio.value;
@@ -324,6 +357,9 @@ async function applyFilters() {
         if (currentFilters.author) params.push(`author=${encodeURIComponent(currentFilters.author)}`);
         if (currentFilters.year) params.push(`year=${currentFilters.year}`);
         if (currentFilters.genre) params.push(`genre=${encodeURIComponent(currentFilters.genre)}`);
+        if (currentFilters.language) params.push(`language=${encodeURIComponent(currentFilters.language)}`);
+        if (currentFilters.pagesFrom) params.push(`pagesFrom=${currentFilters.pagesFrom}`);
+        if (currentFilters.pagesTo) params.push(`pagesTo=${currentFilters.pagesTo}`);
         if (currentFilters.isAvailable) params.push(`isAvailable=${currentFilters.isAvailable}`);
 
         url += params.join('&');
@@ -347,12 +383,18 @@ function resetFilters() {
     document.getElementById('filterAuthor').value = '';
     document.getElementById('filterYear').value = '';
     document.getElementById('filterGenre').value = '';
+    document.getElementById('filterLanguage').value = '';
+    document.getElementById('filterPagesFrom').value = '';
+    document.getElementById('filterPagesTo').value = '';
     document.querySelector('input[name="availability"][value=""]').checked = true;
 
     currentFilters = {
         author: '',
         year: '',
         genre: '',
+        language: '',
+        pagesFrom: '',
+        pagesTo: '',
         isAvailable: ''
     };
 }
@@ -390,6 +432,8 @@ async function updateSelectedBook() {
         document.getElementById('author').value = book.author;
         document.getElementById('year').value = book.year;
         document.getElementById('genre').value = book.genre;
+        document.getElementById('language').value = book.language || '';
+        document.getElementById('pages').value = book.pages || '';
         document.getElementById('description').value = book.description || '';
         document.getElementById('isAvailable').checked = book.isAvailable;
         document.getElementById('booksContainer').classList.remove('active');
@@ -438,6 +482,8 @@ async function submitForm(event) {
         author: document.getElementById('author').value,
         year: parseInt(document.getElementById('year').value),
         genre: parseInt(document.getElementById('genre').value),
+        language: document.getElementById('language').value,
+        pages: parseInt(document.getElementById('pages').value),
         description: document.getElementById('description').value,
         isAvailable: document.getElementById('isAvailable').checked
     };

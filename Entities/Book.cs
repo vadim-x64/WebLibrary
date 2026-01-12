@@ -7,6 +7,8 @@
         public string Title { get; set; } = string.Empty;
         public string Author { get; set; } = string.Empty;
         public int Year { get; set; }
+        public string Language { get; set; } = string.Empty;
+        public int Pages { get; set; }
         public Genre Genre { get; set; }
         public string? Description { get; set; }
         public bool IsAvailable { get; set; } = true;

@@ -18,10 +18,13 @@ namespace WebLibrary.Controllers
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks(
-            [FromQuery] string? author = null,
-            [FromQuery] int? year = null,
-            [FromQuery] Genre? genre = null,
-            [FromQuery] bool? isAvailable = null)
+    [FromQuery] string? author = null,
+    [FromQuery] int? year = null,
+    [FromQuery] Genre? genre = null,
+    [FromQuery] string? language = null,
+    [FromQuery] int? pagesFrom = null,
+    [FromQuery] int? pagesTo = null,
+    [FromQuery] bool? isAvailable = null)
         {
             var query = _context.Books.AsQueryable();
 
@@ -38,6 +41,21 @@ namespace WebLibrary.Controllers
             if (genre.HasValue)
             {
                 query = query.Where(b => b.Genre == genre.Value);
+            }
+
+            if (!string.IsNullOrEmpty(language))
+            {
+                query = query.Where(b => b.Language == language);
+            }
+
+            if (pagesFrom.HasValue)
+            {
+                query = query.Where(b => b.Pages >= pagesFrom.Value);
+            }
+
+            if (pagesTo.HasValue)
+            {
+                query = query.Where(b => b.Pages <= pagesTo.Value);
             }
 
             if (isAvailable.HasValue)
@@ -63,6 +81,12 @@ namespace WebLibrary.Controllers
                 .OrderByDescending(y => y)
                 .ToListAsync();
 
+            var languages = await _context.Books
+                .Select(b => b.Language)
+                .Distinct()
+                .OrderBy(l => l)
+                .ToListAsync();
+
             var genres = Enum.GetValues(typeof(Genre))
                 .Cast<Genre>()
                 .Select(g => new { value = (int)g, name = g.ToString() })
@@ -72,6 +96,7 @@ namespace WebLibrary.Controllers
             {
                 authors,
                 years,
+                languages,
                 genres
             };
         }
