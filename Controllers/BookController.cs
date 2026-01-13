@@ -18,13 +18,8 @@ namespace WebLibrary.Controllers
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks(
-    [FromQuery] string? author = null,
-    [FromQuery] int? year = null,
-    [FromQuery] Genre? genre = null,
-    [FromQuery] string? language = null,
-    [FromQuery] int? pagesFrom = null,
-    [FromQuery] int? pagesTo = null,
-    [FromQuery] bool? isAvailable = null)
+            [FromQuery] string? author = null, [FromQuery] int? year = null, [FromQuery] Genre? genre = null,
+            [FromQuery] string? language = null, [FromQuery] int? pagesFrom = null, [FromQuery] int? pagesTo = null, [FromQuery] bool? isAvailable = null)
         {
             var query = _context.Books.AsQueryable();
 
@@ -105,10 +100,12 @@ namespace WebLibrary.Controllers
         public async Task<ActionResult<Book>> GetBook(int id)
         {
             var book = await _context.Books.FindAsync(id);
+
             if (book == null)
             {
                 return NotFound();
             }
+
             return book;
         }
 
@@ -160,6 +157,7 @@ namespace WebLibrary.Controllers
         public async Task<IActionResult> DeleteBooks([FromBody] List<int> ids)
         {
             var books = await _context.Books.Where(b => ids.Contains(b.Id)).ToListAsync();
+
             if (books.Count == 0)
             {
                 return NotFound();

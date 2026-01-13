@@ -2,10 +2,27 @@
 {
     public enum Genre
     {
-        Fiction,
+        Action,
+        Adventure,
+        Classic,
+        Contemporary,
+        Dystopian,
+        Fantasy,
+        Historical,
+        Horror,
         Mystery,
-        Romance,
-        ScienceFiction,
-        Biography
+        Thriller,
+        Art,
+        Biography,
+        History,
+        Philosophy,
+        Psychology,
+        Science,
+        Travel,
+        Poetry,
+        Novel,
+        Narration,
+        Prose,
+        Fiction
     }
 }

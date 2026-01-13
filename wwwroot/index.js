@@ -1,6 +1,29 @@
-﻿let currentMode = null;
-let selectedBooks = new Set();
+﻿let currentView = localStorage.getItem('bookView') || 'grid';
 
+function setView(view) {
+    currentView = view;
+    localStorage.setItem('bookView', view);
+
+    const grid = document.getElementById('booksGrid');
+    const buttons = document.querySelectorAll('.view-btn');
+
+    buttons.forEach(btn => {
+        if (btn.dataset.view === view) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    if (view === 'list') {
+        grid.classList.add('list-view');
+    } else {
+        grid.classList.remove('list-view');
+    }
+}
+
+let currentMode = null;
+let selectedBooks = new Set();
 let currentPage = 1;
 const booksPerPage = 6;
 let allBooks = [];
@@ -59,10 +82,10 @@ async function loadBooks() {
     try {
         const response = await fetch('/api/book');
         allBooks = await response.json();
-
         currentMode = null;
         selectedBooks.clear();
         currentPage = 1;
+
         currentFilters = {
             author: '',
             year: '',
@@ -85,11 +108,19 @@ async function loadBooks() {
 function displayBooks() {
     const grid = document.getElementById('booksGrid');
     const pagination = document.getElementById('pagination');
+    const selectAllContainer = document.getElementById('selectAllContainer');
     grid.innerHTML = '';
+
+    if (currentMode !== 'delete') {
+        selectAllContainer.classList.remove('active');
+    } else {
+        selectAllContainer.classList.add('active');
+    }
 
     if (allBooks.length === 0) {
         grid.innerHTML = '<p class="empty-message">Seems like there are no books yet. Create one!</p>';
         pagination.style.display = 'none';
+        selectAllContainer.classList.remove('active');
         return;
     }
 
@@ -103,6 +134,9 @@ function displayBooks() {
         grid.appendChild(card);
     });
 
+    setView(currentView);
+    updateSelectAllCheckbox();
+
     if (totalPages > 1) {
         pagination.style.display = 'flex';
         renderPagination(totalPages);
@@ -114,7 +148,6 @@ function displayBooks() {
 function renderPagination(totalPages) {
     const pagination = document.getElementById('pagination');
     pagination.innerHTML = '';
-
     const prevBtn = document.createElement('button');
     prevBtn.textContent = '<';
     prevBtn.disabled = currentPage === 1;
@@ -145,17 +178,19 @@ function createBookCard(book) {
     const card = document.createElement('div');
     card.className = 'book-card';
     card.dataset.bookId = book.id;
+    const isChecked = selectedBooks.has(book.id);
 
     const checkbox = currentMode === 'update' || currentMode === 'delete'
-        ? `<input type="checkbox" class="select-checkbox" onchange="toggleBookSelection(${book.id}, this.checked)">`
+        ? `<input type="checkbox" class="select-checkbox" ${isChecked ? 'checked' : ''} onchange="toggleBookSelection(${book.id}, this.checked)">`
         : '';
 
     const description = book.description || 'There is no description.';
-    const maxLength = 100;
-
+    const maxLength = currentView === 'list' ? 300 : 100;
     let descriptionHTML;
+
     if (description.length > maxLength) {
         const shortDescription = description.substring(0, maxLength);
+
         descriptionHTML = `
             <div class="book-description">
                 <span class="description-short">${shortDescription}... </span>
@@ -168,25 +203,50 @@ function createBookCard(book) {
     }
 
     const genreNames = {
-        'Fiction': 'Fiction',
+        'Action': 'Action',
+        'Adventure': 'Adventure',
+        'Classic': 'Classic',
+        'Contemporary': 'Contemporary',
+        'Dystopian': 'Dystopian',
+        'Fantasy': 'Fantasy',
+        'Historical': 'Historical',
+        'Horror': 'Horror',
         'Mystery': 'Mystery',
-        'Romance': 'Romance',
-        'ScienceFiction': 'Science Fiction',
-        'Biography': 'Biography'
+        'Thriller': 'Thriller',
+        'Art': 'Art',
+        'Biography': 'Biography',
+        'History': 'History',
+        'Philosophy': 'Philosophy',
+        'Psychology': 'Psychology',
+        'Science': 'Science',
+        'Travel': 'Travel',
+        'Poetry': 'Poetry',
+        'Novel': 'Novel',
+        'Narration': 'Narration',
+        'Prose': 'Prose',
+        'Fiction': 'Fiction'
     };
 
     const genreHTML = `<span class="book-genre-badge">${genreNames[book.genre] || book.genre}</span>`;
 
+    const imageContainer = book.image
+        ? `<div class="book-image-container"><img src="${book.image}" alt="${book.title}" class="book-image"></div>`
+        : '<div class="book-image-container"><div class="book-image"></div></div>';
+
     card.innerHTML = `
         ${checkbox}
-        ${book.image ? `<img src="${book.image}" alt="${book.title}" class="book-image">` : '<div class="book-image"></div>'}
-        <div class="book-title">${book.title}</div>
-        <hr>
-        <div class="book-author">Author: ${book.author}</div>
-        <div class="book-year">Year: ${book.year}</div>
-        <div class="book-info">Language: ${book.language || 'N/A'}</div>
-        <div class="book-info">Pages: ${book.pages || 'N/A'}</div>
-        ${descriptionHTML}
+        ${imageContainer}
+        <div class="book-info-block">
+            <div class="book-title">${book.title}</div>
+            <hr>
+            <div class="book-author">Author: ${book.author}</div>
+            <div class="book-year">Year: ${book.year}</div>
+            <div class="book-info">Language: ${book.language || 'N/A'}</div>
+            <div class="book-info">Pages: ${book.pages || 'N/A'}</div>
+        </div>
+        <div class="book-description-block">
+            ${descriptionHTML}
+        </div>
         <span class="book-status ${book.isAvailable ? 'status-available' : 'status-unavailable'}">
             ${book.isAvailable ? 'Available' : 'Unavailable'}
         </span>
@@ -215,6 +275,36 @@ function toggleDescription(bookId, event) {
     }
 }
 
+function toggleSelectAll(isChecked) {
+    if (isChecked) {
+        allBooks.forEach(book => {
+            selectedBooks.add(book.id);
+        });
+    } else {
+        selectedBooks.clear();
+    }
+
+    const checkboxes = document.querySelectorAll('.select-checkbox');
+
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = isChecked;
+    });
+
+    updateActionButtons();
+}
+
+function updateSelectAllCheckbox() {
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+
+    if (allBooks.length === 0) {
+        selectAllCheckbox.checked = false;
+        return;
+    }
+
+    const allSelected = allBooks.every(book => selectedBooks.has(book.id));
+    selectAllCheckbox.checked = allSelected;
+}
+
 function toggleBookSelection(bookId, isChecked) {
     const card = document.querySelector(`.book-card[data-book-id="${bookId}"]`);
 
@@ -227,6 +317,7 @@ function toggleBookSelection(bookId, isChecked) {
     }
 
     updateActionButtons();
+    updateSelectAllCheckbox();
 }
 
 function updateActionButtons() {
@@ -257,11 +348,11 @@ function enableDeleteMode() {
     currentMode = 'delete';
     selectedBooks.clear();
     loadBooksInMode();
+    document.getElementById('selectAllContainer').classList.add('active');
     showMessage('Select one or more books to delete', 'success');
 }
 
 async function enableSortingMode() {
-
     try {
         const response = await fetch('/api/book');
         allBooks = await response.json();
@@ -271,10 +362,8 @@ async function enableSortingMode() {
             return;
         }
 
-
         currentMode = 'sorting';
         selectedBooks.clear();
-
         document.getElementById('bookForm').classList.remove('active');
         document.getElementById('booksContainer').classList.remove('active');
         document.getElementById('sortingForm').classList.add('active');
@@ -290,9 +379,9 @@ async function loadFilterOptions() {
     try {
         const response = await fetch('/api/book/filters');
         const filters = await response.json();
-
         const authorSelect = document.getElementById('filterAuthor');
         authorSelect.innerHTML = '<option value="">All authors</option>';
+
         filters.authors.forEach(author => {
             const option = document.createElement('option');
             option.value = author;
@@ -302,6 +391,7 @@ async function loadFilterOptions() {
 
         const yearSelect = document.getElementById('filterYear');
         yearSelect.innerHTML = '<option value="">All years</option>';
+
         filters.years.forEach(year => {
             const option = document.createElement('option');
             option.value = year;
@@ -311,6 +401,7 @@ async function loadFilterOptions() {
 
         const genreSelect = document.getElementById('filterGenre');
         genreSelect.innerHTML = '<option value="">All genres</option>';
+
         filters.genres.forEach(genre => {
             const option = document.createElement('option');
             option.value = genre.value;
@@ -320,6 +411,7 @@ async function loadFilterOptions() {
 
         const languageSelect = document.getElementById('filterLanguage');
         languageSelect.innerHTML = '<option value="">All languages</option>';
+
         filters.languages.forEach(language => {
             const option = document.createElement('option');
             option.value = language;
@@ -329,6 +421,7 @@ async function loadFilterOptions() {
 
         const pagesSelect = document.getElementById('filterPages');
         pagesSelect.innerHTML = '<option value="">All pages</option>';
+
         filters.pages.forEach(page => {
             const option = document.createElement('option');
             option.value = page;
@@ -346,7 +439,6 @@ async function applyFilters() {
     currentFilters.language = document.getElementById('filterLanguage').value;
     currentFilters.pagesFrom = document.getElementById('filterPagesFrom').value;
     currentFilters.pagesTo = document.getElementById('filterPagesTo').value;
-
     const availabilityRadio = document.querySelector('input[name="availability"]:checked');
     currentFilters.isAvailable = availabilityRadio.value;
 
@@ -403,12 +495,12 @@ async function loadBooksInMode() {
     try {
         const response = await fetch('/api/book');
         allBooks = await response.json();
-        currentPage = 1;
 
         document.getElementById('bookForm').classList.remove('active');
         document.getElementById('sortingForm').classList.remove('active');
         document.getElementById('booksContainer').classList.add('active');
         document.getElementById('actionButtons').style.display = 'none';
+
         displayBooks();
     } catch (error) {
         showMessage('Error uploading books: ' + error.message, 'error');
@@ -419,6 +511,7 @@ async function updateSelectedBook() {
         showMessage('Select only one book to update', 'error');
         return;
     }
+
     const bookId = Array.from(selectedBooks)[0];
 
     try {
@@ -448,6 +541,7 @@ async function deleteSelectedBooks() {
         showMessage('Select at least one book to delete', 'error');
         return;
     }
+
     if (!confirm(`Are you really sure to delete ${selectedBooks.size} item(s)?`)) {
         return;
     }
@@ -474,9 +568,9 @@ async function deleteSelectedBooks() {
 }
 async function submitForm(event) {
     event.preventDefault();
+
     const bookId = document.getElementById('bookId').value;
     const genreValue = document.getElementById('genre').value;
-
 
     const book = {
         id: bookId ? parseInt(bookId) : 0,
@@ -493,6 +587,7 @@ async function submitForm(event) {
 
     try {
         let response;
+
         if (bookId) {
             response = await fetch(`/api/book/${bookId}`, {
                 method: 'PUT',
